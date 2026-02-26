@@ -21,6 +21,7 @@ tests/
 
 # ── Large output/log files ──
 *.txt
+!requirements.txt
 rotation_logs.txt
 server_output*.txt
 server_error.txt
