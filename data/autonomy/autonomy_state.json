@@ -1,0 +1,17 @@
+{
+  "cycle_count": 1,
+  "cycle_interval": 5.0,
+  "exploration_rate": 0.1,
+  "stats": {
+    "total_cycles": 1,
+    "total_actions": 0,
+    "successful_actions": 0,
+    "failed_actions": 0,
+    "exploration_actions": 0,
+    "avg_decision_time": 0.0,
+    "action_distribution": {},
+    "source_distribution": {},
+    "prediction_accuracy": 0.0
+  },
+  "last_updated": "2026-02-24T01:57:29.676901"
+}

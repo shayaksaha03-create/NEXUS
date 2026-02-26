@@ -1,0 +1,1619 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEXUS AI - Command Center</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v={{ range(100000, 999999) | random }}">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+
+<body>
+
+    <!-- PARTICLE BACKGROUND -->
+    <canvas id="particle-bg"></canvas>
+
+    <!-- COMMAND PALETTE (Ctrl+K) -->
+    <div class="cmd-palette-overlay" id="command-palette-modal"
+        onclick="if(event.target===this) toggleCommandPalette()">
+        <div class="cmd-palette-box">
+            <div class="cmd-palette-header">
+                <i class="fas fa-terminal"></i>
+                <input type="text" id="cmd-palette-input" placeholder="Type a command..."
+                    oninput="renderCommandPaletteResults(this.value)" onkeydown="handleCommandPaletteKey(event)">
+                <kbd>ESC</kbd>
+            </div>
+            <div class="cmd-palette-results" id="cmd-palette-results"></div>
+        </div>
+    </div>
+
+    <!-- TOAST CONTAINER -->
+    <div id="toast-container"></div>
+
+    <!-- AUTH MODAL -->
+    <div class="auth-overlay" id="auth-overlay">
+        <div class="auth-modal">
+            <div class="auth-logo">
+                <div class="auth-logo-icon">🧠</div>
+                <h1>NEXUS AI</h1>
+                <p>Your conscious AI companion</p>
+            </div>
+
+            <!-- LOGIN FORM -->
+            <div class="auth-form" id="login-form">
+                <h2>Welcome Back</h2>
+                <div class="auth-field">
+                    <label for="login-username"><i class="fas fa-user"></i> Username</label>
+                    <input type="text" id="login-username" placeholder="Enter username" autocomplete="username">
+                </div>
+                <div class="auth-field">
+                    <label for="login-password"><i class="fas fa-lock"></i> Password</label>
+                    <input type="password" id="login-password" placeholder="Enter password"
+                        autocomplete="current-password">
+                </div>
+                <div class="auth-error" id="login-error"></div>
+                <button class="auth-btn" id="login-btn" onclick="doLogin()">Sign In</button>
+                <div class="auth-switch">
+                    Don't have an account? <a href="#" onclick="showSignup(); return false;">Create one</a>
+                </div>
+            </div>
+
+            <!-- SIGNUP FORM -->
+            <div class="auth-form" id="signup-form" style="display:none">
+                <h2>Create Account</h2>
+                <div class="auth-field">
+                    <label for="signup-username"><i class="fas fa-user"></i> Username</label>
+                    <input type="text" id="signup-username" placeholder="Choose a username" autocomplete="username">
+                </div>
+                <div class="auth-field">
+                    <label for="signup-display"><i class="fas fa-id-card"></i> Display Name</label>
+                    <input type="text" id="signup-display" placeholder="How should NEXUS call you?">
+                </div>
+                <div class="auth-field">
+                    <label for="signup-password"><i class="fas fa-lock"></i> Password</label>
+                    <input type="password" id="signup-password" placeholder="Choose a password"
+                        autocomplete="new-password">
+                </div>
+                <div class="auth-field">
+                    <label for="signup-confirm"><i class="fas fa-lock"></i> Confirm Password</label>
+                    <input type="password" id="signup-confirm" placeholder="Confirm password"
+                        autocomplete="new-password">
+                </div>
+                <div class="auth-error" id="signup-error"></div>
+                <button class="auth-btn" id="signup-btn" onclick="doSignup()">Create Account</button>
+                <div class="auth-switch">
+                    Already have an account? <a href="#" onclick="showLogin(); return false;">Sign in</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MOBILE SIDEBAR OVERLAY -->
+    <div id="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+        <div class="logo-area">
+            <div class="pulsing-dot" id="system-status-dot"></div>
+            <div class="logo-text">
+                <h1>NEXUS</h1>
+                <span>AI SYSTEM</span>
+            </div>
+        </div>
+
+        <div class="nav-label">NAVIGATION</div>
+
+        <nav>
+            <button class="nav-btn active" data-page="dashboard" onclick="switchPage('dashboard')">
+                <i class="fas fa-th-large"></i> Dashboard
+            </button>
+            <button class="nav-btn" data-page="chat" onclick="switchPage('chat')">
+                <i class="fas fa-comments"></i> Chat
+            </button>
+            <button class="nav-btn" data-page="mind" onclick="switchPage('mind')">
+                <i class="fas fa-brain"></i> Mind
+            </button>
+            <button class="nav-btn" data-page="evolution" onclick="switchPage('evolution')">
+                <i class="fas fa-dna"></i> Evolution
+            </button>
+            <button class="nav-btn" data-page="knowledge" onclick="switchPage('knowledge')">
+                <i class="fas fa-book"></i> Knowledge
+            </button>
+            <button class="nav-btn" data-page="abilities" onclick="switchPage('abilities')">
+                <i class="fas fa-magic"></i> Abilities
+            </button>
+            <button class="nav-btn" data-page="system" onclick="switchPage('system')">
+                <i class="fas fa-server"></i> System
+            </button>
+            <button class="nav-btn" data-page="settings" onclick="switchPage('settings')">
+                <i class="fas fa-cog"></i> Settings
+            </button>
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="status-item">
+                <i class="fas fa-meh" id="sidebar-emotion-icon"></i>
+                <span id="sidebar-emotion-text">Neutral</span>
+            </div>
+            <div class="status-item">
+                <i class="fas fa-comment-alt"></i>
+                <span id="sidebar-thoughts">0 thoughts</span>
+            </div>
+            <div class="status-item user-logout-item" id="sidebar-user-section" style="display:none">
+                <i class="fas fa-user-circle"></i>
+                <span id="sidebar-username">User</span>
+                <button class="logout-btn" onclick="doLogout()" title="Logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+
+        <!-- HEADER -->
+        <div class="header">
+            <div class="header-left">
+                <button class="hamburger-btn" onclick="toggleSidebar()">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+            <div class="header-right">
+                <div class="consciousness-badge" id="consciousness-badge">
+                    <span class="badge-dot"></span> FOCUSED
+                </div>
+                <div class="emotion-badge" id="header-emotion-badge">
+                    Contentment (0.3)
+                </div>
+                <div class="header-stat">
+                    <i class="fas fa-bolt"></i> CPU: <span id="header-cpu">0%</span>
+                </div>
+                <div class="header-stat">
+                    <i class="fas fa-memory"></i> RAM: <span id="header-ram">0%</span>
+                </div>
+                <div class="header-stat">
+                    <i class="fas fa-clock"></i> <span id="header-uptime">--</span>
+                </div>
+                <div class="header-user-badge" id="header-user-badge" style="display:none">
+                    <i class="fas fa-user-circle"></i> <span id="header-username">User</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- CONTENT STACK -->
+        <div class="content-stack">
+
+            <!-- ═══════════════════════════════════════════════ -->
+            <!-- DASHBOARD PAGE (Command Center) -->
+            <!-- ═══════════════════════════════════════════════ -->
+            <div id="page-dashboard" class="page active">
+                <div class="page-scroll">
+                    <div class="page-header">
+                        <h2><i class="fas fa-th-large"></i> Command Center</h2>
+                        <div class="page-header-right">
+                            <span class="last-update-label" id="dash-last-update">Last update: --</span>
+                            <button class="tool-btn" onclick="fetchStats()"><i class="fas fa-sync-alt"></i>
+                                Refresh</button>
+                        </div>
+                    </div>
+
+                    <!-- ═══ TOP STAT CARDS ROW ═══ -->
+                    <div class="stat-cards-row">
+                        <div class="stat-card-mini accent-cyan">
+                            <div class="scm-icon">💭</div>
+                            <div class="scm-body">
+                                <div class="scm-value" id="dash-card-thoughts">0</div>
+                                <div class="scm-label">Thoughts</div>
+                            </div>
+                        </div>
+                        <div class="stat-card-mini accent-green">
+                            <div class="scm-icon" id="dash-card-emotion-icon">😐</div>
+                            <div class="scm-body">
+                                <div class="scm-value" id="dash-card-emotion-val">Neutral</div>
+                                <div class="scm-label">Emotion</div>
+                            </div>
+                        </div>
+                        <div class="stat-card-mini accent-orange">
+                            <div class="scm-icon">⚡</div>
+                            <div class="scm-body">
+                                <div class="scm-value" id="dash-card-cpu">0%</div>
+                                <div class="scm-label">CPU</div>
+                            </div>
+                        </div>
+                        <div class="stat-card-mini accent-purple">
+                            <div class="scm-icon">🧩</div>
+                            <div class="scm-body">
+                                <div class="scm-value" id="dash-card-ram">0%</div>
+                                <div class="scm-label">RAM</div>
+                            </div>
+                        </div>
+                        <div class="stat-card-mini accent-green">
+                            <div class="scm-icon">💚</div>
+                            <div class="scm-body">
+                                <div class="scm-value" id="dash-card-health">0%</div>
+                                <div class="scm-label">Health</div>
+                            </div>
+                        </div>
+                        <div class="stat-card-mini accent-teal">
+                            <div class="scm-icon">⏱️</div>
+                            <div class="scm-body">
+                                <div class="scm-value" id="dash-card-uptime">--</div>
+                                <div class="scm-label">Uptime</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ═══ SYSTEM VITALS SECTION ═══ -->
+                    <div class="card glass-card dash-section">
+                        <h3><i class="fas fa-heartbeat"></i> System Vitals</h3>
+                        <!-- Gauges Row -->
+                        <div class="dash-gauges-row">
+                            <div class="dash-gauge-item">
+                                <svg class="svg-gauge" viewBox="0 0 120 120">
+                                    <circle class="gauge-bg" cx="60" cy="60" r="52" />
+                                    <circle class="gauge-fill" id="dash-cpu-ring" cx="60" cy="60" r="52"
+                                        style="stroke:#00d4ff" />
+                                </svg>
+                                <div class="gauge-center">
+                                    <span class="gauge-value" id="dash-cpu-val">0%</span>
+                                    <span class="gauge-label">CPU</span>
+                                </div>
+                            </div>
+                            <div class="dash-gauge-item">
+                                <svg class="svg-gauge" viewBox="0 0 120 120">
+                                    <circle class="gauge-bg" cx="60" cy="60" r="52" />
+                                    <circle class="gauge-fill" id="dash-ram-ring" cx="60" cy="60" r="52"
+                                        style="stroke:#00ff88" />
+                                </svg>
+                                <div class="gauge-center">
+                                    <span class="gauge-value" id="dash-ram-val">0%</span>
+                                    <span class="gauge-label">RAM</span>
+                                </div>
+                            </div>
+                            <div class="dash-gauge-item">
+                                <svg class="svg-gauge" viewBox="0 0 120 120">
+                                    <circle class="gauge-bg" cx="60" cy="60" r="52" />
+                                    <circle class="gauge-fill" id="dash-disk-ring" cx="60" cy="60" r="52"
+                                        style="stroke:#f97316" />
+                                </svg>
+                                <div class="gauge-center">
+                                    <span class="gauge-value" id="dash-disk-val">0%</span>
+                                    <span class="gauge-label">Disk</span>
+                                </div>
+                            </div>
+                            <div class="dash-gauge-item">
+                                <svg class="svg-gauge" viewBox="0 0 120 120">
+                                    <circle class="gauge-bg" cx="60" cy="60" r="52" />
+                                    <circle class="gauge-fill" id="dash-health-ring" cx="60" cy="60" r="52"
+                                        style="stroke:#a855f7" />
+                                </svg>
+                                <div class="gauge-center">
+                                    <span class="gauge-value" id="dash-health-val">0%</span>
+                                    <span class="gauge-label">Health</span>
+                                </div>
+                            </div>
+                            <!-- Consciousness Orb -->
+                            <div class="dash-consciousness-orb-wrap">
+                                <div class="consciousness-orb" id="dash-consciousness-orb">
+                                    <div class="orb-inner"></div>
+                                    <div class="orb-ring"></div>
+                                </div>
+                                <div class="orb-level-label" id="dash-consciousness-level">AWARE</div>
+                            </div>
+                        </div>
+                        <!-- Sparklines Row -->
+                        <div class="dash-spark-row">
+                            <div class="dash-spark-card">
+                                <span class="sparkline-label">CPU History</span>
+                                <canvas class="sparkline-mini" id="dash-cpu-spark" height="30"></canvas>
+                            </div>
+                            <div class="dash-spark-card">
+                                <span class="sparkline-label">RAM History</span>
+                                <canvas class="sparkline-mini" id="dash-ram-spark" height="30"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ═══ MIDDLE ROW — Mind State + Emotion Tracker ═══ -->
+                    <div class="card-grid cols-2">
+                        <!-- Mind State -->
+                        <div class="card glass-card">
+                            <h3><i class="fas fa-brain"></i> Mind State</h3>
+                            <div class="kv-section">
+                                <div class="kv-row"><span class="kv-key">Consciousness</span><span
+                                        class="kv-val accent-text-cyan" id="dash-mind-consciousness">AWARE</span></div>
+                                <div class="kv-row"><span class="kv-key">Focus</span><span class="kv-val"
+                                        id="dash-mind-focus">idle</span></div>
+                                <div class="kv-row"><span class="kv-key">Boredom</span><span class="kv-val"
+                                        id="dash-mind-boredom">0.00</span></div>
+                                <div class="kv-row"><span class="kv-key">Curiosity</span><span
+                                        class="kv-val accent-text-cyan" id="dash-mind-curiosity">0.00</span></div>
+                                <div class="kv-row"><span class="kv-key">Decisions Made</span><span class="kv-val"
+                                        id="dash-mind-decisions">0</span></div>
+                                <div class="kv-row"><span class="kv-key">Self Reflections</span><span class="kv-val"
+                                        id="dash-mind-reflections">0</span></div>
+                                <div class="kv-row"><span class="kv-key">Responses</span><span class="kv-val"
+                                        id="dash-mind-responses">0</span></div>
+                                <div class="kv-row"><span class="kv-key">Avg Response Time</span><span class="kv-val"
+                                        id="dash-mind-avg-rt">--</span></div>
+                            </div>
+                        </div>
+                        <!-- Emotion Tracker -->
+                        <div class="card glass-card">
+                            <h3><i class="fas fa-heart"></i> Emotion Tracker</h3>
+                            <!-- Valence/Arousal sparklines -->
+                            <div class="dash-spark-row" style="margin-bottom:12px">
+                                <div class="dash-spark-card">
+                                    <span class="sparkline-label">Valence</span>
+                                    <canvas class="sparkline-mini" id="dash-valence-spark" height="30"></canvas>
+                                </div>
+                                <div class="dash-spark-card">
+                                    <span class="sparkline-label">Arousal</span>
+                                    <canvas class="sparkline-mini" id="dash-arousal-spark" height="30"></canvas>
+                                </div>
+                            </div>
+                            <div class="kv-section">
+                                <div class="kv-row"><span class="kv-key">Primary</span><span
+                                        class="kv-val accent-text-green" id="dash-emo-primary">😐 Neutral (0%)</span>
+                                </div>
+                                <div class="kv-row"><span class="kv-key">Mood</span><span class="kv-val"
+                                        id="dash-emo-mood">NEUTRAL</span></div>
+                                <div class="kv-row"><span class="kv-key">Valence</span><span class="kv-val"
+                                        id="dash-emo-valence">0.00</span></div>
+                                <div class="kv-row"><span class="kv-key">Arousal</span><span class="kv-val"
+                                        id="dash-emo-arousal">0.00</span></div>
+                                <div class="kv-row"><span class="kv-key">Active Emotions</span><span class="kv-val"
+                                        id="dash-emo-active">0</span></div>
+                            </div>
+                            <!-- Emotion History Bars -->
+                            <div class="emotion-bars" id="dash-emotion-bars">
+                                <!-- Populated by JS -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ═══ BOTTOM ROW — Self Evolution + Memory & Learning ═══ -->
+                    <div class="card-grid cols-2">
+                        <!-- Self Evolution -->
+                        <div class="card glass-card">
+                            <h3><i class="fas fa-dna"></i> Self Evolution</h3>
+                            <div class="kv-section">
+                                <div class="kv-row"><span class="kv-key">Status</span><span
+                                        class="kv-val accent-text-cyan" id="dash-evo-status">IDLE</span></div>
+                                <div class="kv-row"><span class="kv-key">Evolutions</span><span
+                                        class="kv-val accent-text-green" id="dash-evo-count">0/0</span></div>
+                                <div class="kv-row"><span class="kv-key">Success Rate</span><span class="kv-val"
+                                        id="dash-evo-rate">0%</span></div>
+                                <div class="kv-row"><span class="kv-key">Proposals</span><span class="kv-val"
+                                        id="dash-evo-proposals">0</span></div>
+                                <div class="kv-row"><span class="kv-key">Lines Self-Written</span><span class="kv-val"
+                                        id="dash-evo-lines">0</span></div>
+                                <div class="kv-row"><span class="kv-key">Research Cycles</span><span class="kv-val"
+                                        id="dash-evo-research">0</span></div>
+                                <div class="kv-row"><span class="kv-key">Currently Evolving</span><span class="kv-val"
+                                        id="dash-evo-current">None</span></div>
+                            </div>
+                        </div>
+                        <!-- Memory & Learning -->
+                        <div class="card glass-card">
+                            <h3><i class="fas fa-database"></i> Memory &amp; Learning</h3>
+                            <div class="kv-section">
+                                <div class="kv-row"><span class="kv-key">Total Memories</span><span class="kv-val"
+                                        id="dash-mem-total">0</span></div>
+                                <div class="kv-row"><span class="kv-key">Knowledge Entries</span><span
+                                        class="kv-val accent-text-cyan" id="dash-mem-knowledge">0</span></div>
+                                <div class="kv-row"><span class="kv-key">Topics Learned</span><span class="kv-val"
+                                        id="dash-mem-topics">0</span></div>
+                                <div class="kv-row"><span class="kv-key">Curiosity Queue</span><span class="kv-val"
+                                        id="dash-mem-curiosity">0</span></div>
+                                <div class="kv-row"><span class="kv-key">Research Sessions</span><span class="kv-val"
+                                        id="dash-mem-research">0</span></div>
+                                <div class="kv-row"><span class="kv-key">Context Tokens</span><span class="kv-val"
+                                        id="dash-mem-tokens">0</span></div>
+                                <div class="kv-row"><span class="kv-key">Code Errors</span><span class="kv-val"
+                                        id="dash-mem-errors">0</span></div>
+                                <div class="kv-row"><span class="kv-key">Errors Auto-Fixed</span><span
+                                        class="kv-val accent-text-green" id="dash-mem-fixed">0</span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ═══ USER & MONITORING ═══ -->
+                    <div class="card glass-card dash-section">
+                        <h3><i class="fas fa-user-shield"></i> User &amp; Monitoring</h3>
+                        <div class="user-monitor-grid">
+                            <div class="kv-row"><span class="kv-key">User</span><span class="kv-val"
+                                    id="dash-user-name">Unknown</span></div>
+                            <div class="kv-row"><span class="kv-key">Interactions</span><span class="kv-val"
+                                    id="dash-user-interactions">0</span></div>
+                            <div class="kv-row"><span class="kv-key">Relationship</span><span
+                                    class="kv-val accent-text-pink" id="dash-user-relationship">0.00</span></div>
+                            <div class="kv-row"><span class="kv-key">Present</span><span class="kv-val"
+                                    id="dash-user-present">?</span></div>
+                            <div class="kv-row"><span class="kv-key">Current App</span><span class="kv-val"
+                                    id="dash-user-app">?</span></div>
+                            <div class="kv-row"><span class="kv-key">Activity</span><span class="kv-val"
+                                    id="dash-user-activity">?</span></div>
+                            <div class="kv-row"><span class="kv-key">Clipboard</span><span class="kv-val"
+                                    id="dash-user-clipboard">?</span></div>
+                            <div class="kv-row"><span class="kv-key">Monitors</span><span class="kv-val"
+                                    id="dash-user-monitors">?</span></div>
+                            <div class="kv-row"><span class="kv-key">Browser Tabs</span><span class="kv-val"
+                                    id="dash-user-tabs">?</span></div>
+                            <div class="kv-row"><span class="kv-key">Open Windows</span><span class="kv-val"
+                                    id="dash-user-windows">?</span></div>
+                            <div class="kv-row"><span class="kv-key">Comm Style</span><span class="kv-val"
+                                    id="dash-user-comm">?</span></div>
+                            <div class="kv-row"><span class="kv-key">Tech Level</span><span class="kv-val"
+                                    id="dash-user-tech">?</span></div>
+                            <div class="kv-row"><span class="kv-key">LLM Model</span><span class="kv-val"
+                                    id="dash-user-llm">?</span></div>
+                        </div>
+                    </div>
+
+                    <!-- ═══ MONITORING HEALTH & SCREEN TIME ═══ -->
+                    <div class="card-grid cols-2">
+                        <!-- System Health -->
+                        <div class="card glass-card">
+                            <h3><i class="fas fa-shield-alt"></i> System Health Monitor</h3>
+                            <div class="kv-section">
+                                <div class="kv-row"><span class="kv-key">Health Score</span><span
+                                        class="kv-val accent-text-green" id="dash-mon-health-score">--</span></div>
+                                <div class="kv-row"><span class="kv-key">Active Alerts</span><span class="kv-val"
+                                        id="dash-mon-alert-count">0</span></div>
+                                <div class="kv-row"><span class="kv-key">Checks Performed</span><span class="kv-val"
+                                        id="dash-mon-checks">0</span></div>
+                                <div class="kv-row"><span class="kv-key">Monitoring Status</span><span class="kv-val"
+                                        id="dash-mon-status">--</span></div>
+                                <div class="kv-row"><span class="kv-key">Orch. Cycles</span><span class="kv-val"
+                                        id="dash-mon-cycles">0</span></div>
+                            </div>
+                            <div class="mon-alerts-list" id="dash-mon-alerts">
+                                <!-- Populated by JS -->
+                            </div>
+                            <div class="mon-component-health" id="dash-mon-components">
+                                <!-- Populated by JS -->
+                            </div>
+                        </div>
+                        <!-- Screen Time -->
+                        <div class="card glass-card">
+                            <h3><i class="fas fa-desktop"></i> Screen Time</h3>
+                            <div class="kv-section">
+                                <div class="kv-row"><span class="kv-key">Today</span><span
+                                        class="kv-val accent-text-cyan" id="dash-screen-today">0h 0m</span></div>
+                                <div class="kv-row"><span class="kv-key">Wellbeing Score</span><span class="kv-val"
+                                        id="dash-screen-wellbeing">--</span></div>
+                                <div class="kv-row"><span class="kv-key">Streak</span><span class="kv-val"
+                                        id="dash-screen-streak">0 days</span></div>
+                                <div class="kv-row"><span class="kv-key">Longest Session</span><span class="kv-val"
+                                        id="dash-screen-longest">--</span></div>
+                                <div class="kv-row"><span class="kv-key">Breaks Taken</span><span class="kv-val"
+                                        id="dash-screen-breaks">0</span></div>
+                                <div class="kv-row"><span class="kv-key">Daily Goal</span><span class="kv-val"
+                                        id="dash-screen-goal">8h</span></div>
+                            </div>
+                            <div class="screen-top-apps" id="dash-screen-apps">
+                                <!-- Populated by JS -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ═══ SELF-IMPROVEMENT ═══ -->
+                    <div class="card glass-card dash-section">
+                        <h3><i class="fas fa-wrench"></i> Self-Improvement</h3>
+                        <div class="stat-cards-row">
+                            <div class="stat-card-mini accent-orange">
+                                <div class="scm-icon">🐛</div>
+                                <div class="scm-body">
+                                    <div class="scm-value" id="dash-si-errors-detected">0</div>
+                                    <div class="scm-label">Errors Found</div>
+                                </div>
+                            </div>
+                            <div class="stat-card-mini accent-green">
+                                <div class="scm-icon">🔧</div>
+                                <div class="scm-body">
+                                    <div class="scm-value" id="dash-si-errors-fixed">0</div>
+                                    <div class="scm-label">Auto-Fixed</div>
+                                </div>
+                            </div>
+                            <div class="stat-card-mini accent-cyan">
+                                <div class="scm-icon">💡</div>
+                                <div class="scm-body">
+                                    <div class="scm-value" id="dash-si-features-proposed">0</div>
+                                    <div class="scm-label">Proposed</div>
+                                </div>
+                            </div>
+                            <div class="stat-card-mini accent-purple">
+                                <div class="scm-icon">🚀</div>
+                                <div class="scm-body">
+                                    <div class="scm-value" id="dash-si-features-impl">0</div>
+                                    <div class="scm-label">Implemented</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-grid cols-2" style="margin-top:12px">
+                            <div class="kv-section">
+                                <div class="kv-row"><span class="kv-key">Code Monitor</span><span class="kv-val"
+                                        id="dash-si-cm-status">--</span></div>
+                                <div class="kv-row"><span class="kv-key">Files Watched</span><span class="kv-val"
+                                        id="dash-si-cm-files">0</span></div>
+                                <div class="kv-row"><span class="kv-key">SI Status</span><span class="kv-val"
+                                        id="dash-si-running">--</span></div>
+                            </div>
+                            <div class="kv-section">
+                                <div class="kv-row"><span class="kv-key">Error Fixer</span><span class="kv-val"
+                                        id="dash-si-ef-status">--</span></div>
+                                <div class="kv-row"><span class="kv-key">Fix Success Rate</span><span
+                                        class="kv-val accent-text-green" id="dash-si-ef-rate">--</span></div>
+                                <div class="kv-row"><span class="kv-key">All Healthy</span><span class="kv-val"
+                                        id="dash-si-healthy">--</span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ═══ AUTONOMY ENGINE ═══ -->
+                    <div class="card glass-card dash-section">
+                        <h3><i class="fas fa-robot"></i> Autonomy Engine</h3>
+                        <!-- Status mini-cards row -->
+                        <div class="stat-cards-row">
+                            <div class="stat-card-mini accent-cyan">
+                                <div class="scm-icon">🤖</div>
+                                <div class="scm-body">
+                                    <div class="scm-value" id="dash-auto-state">idle</div>
+                                    <div class="scm-label">State</div>
+                                </div>
+                            </div>
+                            <div class="stat-card-mini accent-green">
+                                <div class="scm-icon">🔄</div>
+                                <div class="scm-body">
+                                    <div class="scm-value" id="dash-auto-cycles">0</div>
+                                    <div class="scm-label">Cycles</div>
+                                </div>
+                            </div>
+                            <div class="stat-card-mini accent-orange">
+                                <div class="scm-icon">⚡</div>
+                                <div class="scm-body">
+                                    <div class="scm-value" id="dash-auto-actions">0</div>
+                                    <div class="scm-label">Actions</div>
+                                </div>
+                            </div>
+                            <div class="stat-card-mini accent-purple">
+                                <div class="scm-icon">🎯</div>
+                                <div class="scm-body">
+                                    <div class="scm-value" id="dash-auto-success">0%</div>
+                                    <div class="scm-label">Success</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-grid cols-2" style="margin-top:12px">
+                            <div class="kv-section">
+                                <div class="kv-row"><span class="kv-key">Running</span><span class="kv-val"
+                                        id="dash-auto-running">--</span></div>
+                                <div class="kv-row"><span class="kv-key">Current Action</span><span
+                                        class="kv-val accent-text-cyan" id="dash-auto-current">--</span></div>
+                                <div class="kv-row"><span class="kv-key">Last Result</span><span class="kv-val"
+                                        id="dash-auto-result">--</span></div>
+                                <div class="kv-row"><span class="kv-key">Prediction Accuracy</span><span class="kv-val"
+                                        id="dash-auto-prediction">--</span></div>
+                            </div>
+                            <div class="kv-section">
+                                <div class="kv-row"><span class="kv-key">Action Type</span><span class="kv-val"
+                                        id="dash-auto-type">--</span></div>
+                                <div class="kv-row"><span class="kv-key">Cycle Interval</span><span class="kv-val"
+                                        id="dash-auto-interval">--</span></div>
+                                <div class="kv-row"><span class="kv-key">Avg Decision Time</span><span class="kv-val"
+                                        id="dash-auto-decision">--</span></div>
+                                <div class="kv-row"><span class="kv-key">Exploration Rate</span><span class="kv-val"
+                                        id="dash-auto-explore">--</span></div>
+                            </div>
+                        </div>
+                        <!-- Recent Actions Feed -->
+                        <div class="auto-actions-feed" id="dash-auto-feed">
+                            <div class="auto-feed-label"><i class="fas fa-history"></i> Recent Actions</div>
+                            <div class="auto-feed-list" id="dash-auto-feed-list">
+                                <div class="auto-feed-item muted"><i>No actions yet...</i></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ═══ PERSONALITY TAGS ═══ -->
+                    <div class="personality-tags-strip" id="dash-personality-tags">
+                        <!-- Populated by JS -->
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- ═══════════════════════════════════════════════ -->
+            <!-- CHAT PAGE -->
+            <!-- ═══════════════════════════════════════════════ -->
+            <div id="page-chat" class="page">
+                <div class="chat-container">
+                    <div class="chat-toolbar">
+                        <div class="toolbar-left">
+                            <i class="fas fa-comments"></i> <span>Chat</span>
+                            <span class="msg-count" id="msg-count">0 messages</span>
+                        </div>
+                        <div class="toolbar-right">
+                            <button class="tool-btn" onclick="clearChat()"><i class="fas fa-trash-alt"></i>
+                                Clear</button>
+                        </div>
+                    </div>
+
+                    <div class="chat-messages" id="chat-messages">
+                        <div class="welcome-screen" id="welcome-screen">
+                            <div class="welcome-icon">🧠</div>
+                            <div class="welcome-title">NEXUS AI</div>
+                            <div class="welcome-subtitle">Your conscious AI companion — web interface active.</div>
+                            <div class="welcome-hint">Type a message below to start a conversation.<br>Use <span
+                                    class="cyan">/help</span> to see commands.</div>
+                        </div>
+                    </div>
+
+                    <div class="chat-input-area">
+                        <div id="chat-file-preview-container" class="file-preview-container"></div>
+                        <div class="input-wrapper">
+                            <input type="file" id="chat-file-input" accept="image/*" multiple style="display: none;">
+                            <button id="attach-btn" onclick="document.getElementById('chat-file-input').click()"><i
+                                    class="fas fa-paperclip"></i></button>
+                            <textarea id="chat-input"
+                                placeholder="Type a message... (Drop images here, Enter to send, Shift+Enter for new line)"
+                                rows="1"></textarea>
+                            <button id="send-btn" onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
+                        </div>
+                        <div class="input-status">
+                            <span class="emotion-indicator" id="input-emotion">Current Emotion: Contentment (0.3)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══════════════════════════════════════════════ -->
+            <!-- MIND PAGE -->
+            <!-- ═══════════════════════════════════════════════ -->
+            <div id="page-mind" class="page">
+                <div class="page-scroll">
+                    <div class="page-header">
+                        <h2><i class="fas fa-brain"></i> Mind</h2>
+                        <button class="tool-btn" onclick="fetchStats()"><i class="fas fa-sync-alt"></i> Refresh</button>
+                    </div>
+
+                    <!-- ═══ TOP — Consciousness Stream ═══ -->
+                    <div class="card glass-card mind-consciousness-card">
+                        <h3><i class="fas fa-eye"></i> Consciousness Stream</h3>
+                        <div class="consciousness-stream">
+                            <div class="cs-top-row">
+                                <div class="cs-level-badge" id="mind-cs-level">AWARE</div>
+                                <div class="cs-awareness-wrap">
+                                    <span class="cs-awareness-label">Self-Awareness</span>
+                                    <div class="cs-awareness-bar">
+                                        <div class="cs-awareness-fill" id="mind-cs-awareness-bar" style="width:0%">
+                                        </div>
+                                    </div>
+                                    <span class="cs-awareness-val" id="mind-cs-awareness-val">0%</span>
+                                </div>
+                                <div class="cs-thoughts-count">
+                                    <i class="fas fa-bolt"></i> <span id="mind-cs-thoughts">0</span> thoughts
+                                </div>
+                            </div>
+                            <div class="cs-focus-row">
+                                <span class="cs-focus-label">Focus:</span>
+                                <span class="cs-focus-value" id="mind-cs-focus">idle</span>
+                            </div>
+                            <div class="cs-stream-feed" id="mind-cs-feed">
+                                <div class="cs-event muted"><i>Awaiting consciousness events...</i></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ═══ MIDDLE ROW — Two columns ═══ -->
+                    <div class="card-grid cols-2">
+                        <!-- LEFT COLUMN: Emotion Wheel + Inner Voice/Companion Tabs -->
+                        <div class="mind-left-col">
+                            <!-- Emotion Wheel -->
+                            <div class="card glass-card">
+                                <h3><i class="fas fa-heart-pulse"></i> Emotional Landscape</h3>
+                                <div class="emotion-wheel-container">
+                                    <div class="emotion-wheel" id="emotion-wheel">
+                                        <canvas id="emotion-canvas" width="280" height="280"></canvas>
+                                    </div>
+                                    <div class="emotion-details">
+                                        <div class="detail-item">
+                                            <span class="detail-label">Primary</span>
+                                            <span class="detail-value emotion-color"
+                                                id="mind-primary-emotion">Neutral</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-label">Intensity</span>
+                                            <span class="detail-value" id="mind-intensity">0.0</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-label">Valence</span>
+                                            <span class="detail-value" id="mind-valence">0.0</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-label">Arousal</span>
+                                            <span class="detail-value" id="mind-arousal">0.5</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-label">Mood</span>
+                                            <span class="detail-value" id="mind-mood">Neutral</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Inner Voice / Companion Chat — Tabbed -->
+                            <div class="card glass-card">
+                                <div class="mind-tabs">
+                                    <button class="mind-tab active" data-tab="inner-voice"
+                                        onclick="switchMindTab('inner-voice')">
+                                        <i class="fas fa-comment-dots"></i> Inner Voice
+                                    </button>
+                                    <button class="mind-tab" data-tab="companion" onclick="switchMindTab('companion')">
+                                        <i class="fas fa-comments"></i> Companion (ARIA)
+                                    </button>
+                                </div>
+                                <!-- Inner Voice Tab -->
+                                <div class="mind-tab-content active" id="tab-inner-voice">
+                                    <div class="inner-voice-box" id="inner-voice-box">
+                                        <div class="inner-voice-text" id="inner-voice-text">
+                                            <i>Waiting for thoughts...</i>
+                                        </div>
+                                    </div>
+                                    <div class="thoughts-subheader"><i class="fas fa-lightbulb"></i> Recent Thoughts
+                                    </div>
+                                    <div class="thoughts-list" id="thoughts-list">
+                                        <div class="thought-item muted"><i>No thoughts yet...</i></div>
+                                    </div>
+                                </div>
+                                <!-- Companion Chat Tab -->
+                                <div class="mind-tab-content" id="tab-companion">
+                                    <div class="companion-status-row">
+                                        <div class="companion-dot" id="companion-dot"></div>
+                                        <span class="companion-status-text" id="companion-status">Idle — waiting for
+                                            boredom trigger</span>
+                                        <span class="companion-count" id="companion-count">0 chats</span>
+                                    </div>
+                                    <div class="companion-log" id="companion-log">
+                                        <div class="companion-empty">No companion conversations yet.<br>ARIA will appear
+                                            when boredom exceeds 60%.</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- RIGHT COLUMN: Personality + Will + Mood -->
+                        <div class="mind-right-col">
+                            <!-- Personality Traits -->
+                            <div class="card glass-card">
+                                <h3><i class="fas fa-fingerprint"></i> Personality Traits</h3>
+                                <div class="traits-grid" id="traits-grid">
+                                    <!-- Populated by JS -->
+                                </div>
+                                <div class="personality-desc" id="personality-desc"></div>
+                            </div>
+
+                            <!-- Will & Desires -->
+                            <div class="card glass-card">
+                                <h3><i class="fas fa-fire"></i> Will & Desires</h3>
+                                <div class="will-gauges">
+                                    <div class="will-gauge">
+                                        <span class="will-gauge-label">Boredom</span>
+                                        <div class="will-gauge-track">
+                                            <div class="will-gauge-fill will-boredom" id="will-boredom-bar"
+                                                style="width:0%"></div>
+                                        </div>
+                                        <span class="will-gauge-val" id="will-boredom-val">0%</span>
+                                    </div>
+                                    <div class="will-gauge">
+                                        <span class="will-gauge-label">Curiosity</span>
+                                        <div class="will-gauge-track">
+                                            <div class="will-gauge-fill will-curiosity" id="will-curiosity-bar"
+                                                style="width:0%"></div>
+                                        </div>
+                                        <span class="will-gauge-val" id="will-curiosity-val">0%</span>
+                                    </div>
+                                    <div class="will-gauge">
+                                        <span class="will-gauge-label">Drive</span>
+                                        <div class="will-gauge-track">
+                                            <div class="will-gauge-fill will-drive" id="will-drive-bar"
+                                                style="width:0%"></div>
+                                        </div>
+                                        <span class="will-gauge-val" id="will-drive-val">50%</span>
+                                    </div>
+                                </div>
+                                <div class="will-goals" id="will-goals">
+                                    <!-- Populated by JS -->
+                                </div>
+                                <div class="will-description" id="will-description"></div>
+                            </div>
+
+                            <!-- Mood Timeline -->
+                            <div class="card glass-card">
+                                <h3><i class="fas fa-chart-line"></i> Mood Timeline</h3>
+                                <div class="mood-timeline-container">
+                                    <div class="mood-current-row">
+                                        <span class="mood-badge" id="mood-badge">NEUTRAL</span>
+                                        <span class="mood-stability">Stability: <span
+                                                id="mood-stability-val">50%</span></span>
+                                    </div>
+                                    <canvas id="mood-sparkline" width="400" height="80"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ═══ BOTTOM — Emotional State Detail ═══ -->
+                    <div class="card glass-card mind-emotion-detail-card">
+                        <h3><i class="fas fa-heart"></i> Emotional State Detail</h3>
+                        <div class="emotion-detail-content" id="emotion-detail-content">
+                            <span class="muted-text">Waiting for emotional data...</span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- ═══════════════════════════════════════════════ -->
+            <!-- EVOLUTION PAGE -->
+            <!-- ═══════════════════════════════════════════════ -->
+            <div id="page-evolution" class="page">
+                <div class="page-scroll">
+                    <div class="page-header">
+                        <h2><i class="fas fa-dna"></i> Evolution</h2>
+                        <button class="tool-btn" onclick="fetchStats()"><i class="fas fa-sync-alt"></i> Refresh</button>
+                    </div>
+
+                    <!-- Stat Cards -->
+                    <div class="card-grid cols-4">
+                        <div class="card stat-card accent-cyan">
+                            <div class="stat-icon"><i class="fas fa-code-branch"></i></div>
+                            <h3>Total Evolutions</h3>
+                            <div class="stat-value" id="evo-total">0</div>
+                        </div>
+                        <div class="card stat-card accent-green">
+                            <div class="stat-icon"><i class="fas fa-lightbulb"></i></div>
+                            <h3>Features Proposed</h3>
+                            <div class="stat-value" id="evo-features">0</div>
+                        </div>
+                        <div class="card stat-card accent-purple">
+                            <div class="stat-icon"><i class="fas fa-code"></i></div>
+                            <h3>Lines Self-Written</h3>
+                            <div class="stat-value" id="evo-lines">0</div>
+                        </div>
+                        <div class="card stat-card accent-warning">
+                            <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+                            <h3>Success Rate</h3>
+                            <div class="stat-value" id="evo-success-rate">0%</div>
+                        </div>
+                    </div>
+
+                    <!-- Evolution Pipeline -->
+                    <div class="card glass-card">
+                        <h3><i class="fas fa-stream"></i> Evolution Pipeline</h3>
+                        <div class="evo-pipeline" id="evo-pipeline">
+                            <div class="pipeline-step pending" data-step="0">
+                                <div class="pipeline-dot"></div><span>Analyze</span>
+                            </div>
+                            <div class="pipeline-connector"></div>
+                            <div class="pipeline-step pending" data-step="1">
+                                <div class="pipeline-dot"></div><span>Propose</span>
+                            </div>
+                            <div class="pipeline-connector"></div>
+                            <div class="pipeline-step pending" data-step="2">
+                                <div class="pipeline-dot"></div><span>Review</span>
+                            </div>
+                            <div class="pipeline-connector"></div>
+                            <div class="pipeline-step pending" data-step="3">
+                                <div class="pipeline-dot"></div><span>Implement</span>
+                            </div>
+                            <div class="pipeline-connector"></div>
+                            <div class="pipeline-step pending" data-step="4">
+                                <div class="pipeline-dot"></div><span>Test</span>
+                            </div>
+                            <div class="pipeline-connector"></div>
+                            <div class="pipeline-step pending" data-step="5">
+                                <div class="pipeline-dot"></div><span>Deploy</span>
+                            </div>
+                            <div class="pipeline-connector"></div>
+                            <div class="pipeline-step pending" data-step="6">
+                                <div class="pipeline-dot"></div><span>Monitor</span>
+                            </div>
+                        </div>
+                        <div class="evo-status-row">
+                            <div class="status-badge" id="evo-status-badge"><i class="fas fa-circle"></i> <span
+                                    id="evo-status-text">Idle</span></div>
+                        </div>
+                    </div>
+
+                    <!-- Proposals Table + History -->
+                    <div class="card-grid cols-2">
+                        <div class="card glass-card">
+                            <h3><i class="fas fa-list-check"></i> Feature Proposals</h3>
+                            <div class="data-table-wrap">
+                                <table class="data-table" id="evo-proposals-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Feature</th>
+                                            <th>Priority</th>
+                                            <th>Status</th>
+                                            <th>Date</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="evo-proposals-body">
+                                        <tr>
+                                            <td colspan="4" class="muted-text">No proposals yet</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="card glass-card">
+                            <h3><i class="fas fa-history"></i> Evolution History</h3>
+                            <div class="evo-history-list" id="evo-history-list">
+                                <div class="muted-text">No history yet</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Code Health -->
+                    <div class="card glass-card">
+                        <h3><i class="fas fa-heartbeat"></i> Code Health</h3>
+                        <div class="code-health-row">
+                            <div class="code-health-gauge">
+                                <svg class="svg-gauge" viewBox="0 0 120 120">
+                                    <circle class="gauge-bg" cx="60" cy="60" r="52" />
+                                    <circle class="gauge-fill" id="evo-test-ring" cx="60" cy="60" r="52"
+                                        style="stroke:#00ff88" />
+                                </svg>
+                                <div class="gauge-center"><span class="gauge-value" id="evo-test-val">0%</span><span
+                                        class="gauge-label">Tests</span></div>
+                            </div>
+                            <div class="code-health-gauge">
+                                <svg class="svg-gauge" viewBox="0 0 120 120">
+                                    <circle class="gauge-bg" cx="60" cy="60" r="52" />
+                                    <circle class="gauge-fill" id="evo-lint-ring" cx="60" cy="60" r="52"
+                                        style="stroke:#00d4ff" />
+                                </svg>
+                                <div class="gauge-center"><span class="gauge-value" id="evo-lint-val">0</span><span
+                                        class="gauge-label">Lint</span></div>
+                            </div>
+                            <div class="code-health-gauge">
+                                <svg class="svg-gauge" viewBox="0 0 120 120">
+                                    <circle class="gauge-bg" cx="60" cy="60" r="52" />
+                                    <circle class="gauge-fill" id="evo-complex-ring" cx="60" cy="60" r="52"
+                                        style="stroke:#a855f7" />
+                                </svg>
+                                <div class="gauge-center"><span class="gauge-value" id="evo-complex-val">0</span><span
+                                        class="gauge-label">Complexity</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══════════════════════════════════════════════ -->
+            <!-- KNOWLEDGE PAGE -->
+            <!-- ═══════════════════════════════════════════════ -->
+            <div id="page-knowledge" class="page">
+                <div class="page-scroll">
+                    <div class="page-header">
+                        <h2><i class="fas fa-book"></i> Knowledge</h2>
+                        <button class="tool-btn" onclick="fetchStats()"><i class="fas fa-sync-alt"></i> Refresh</button>
+                    </div>
+
+                    <!-- Gauges Row -->
+                    <div class="card-grid cols-4">
+                        <div class="card stat-card accent-cyan">
+                            <div class="gauge-wrapper">
+                                <svg class="svg-gauge" viewBox="0 0 120 120">
+                                    <circle class="gauge-bg" cx="60" cy="60" r="52" />
+                                    <circle class="gauge-fill" id="know-entries-ring" cx="60" cy="60" r="52"
+                                        style="stroke:#00d4ff" />
+                                </svg>
+                                <div class="gauge-center"><span class="gauge-value" id="know-entries">0</span><span
+                                        class="gauge-label">Entries</span></div>
+                            </div>
+                        </div>
+                        <div class="card stat-card accent-green">
+                            <div class="gauge-wrapper">
+                                <svg class="svg-gauge" viewBox="0 0 120 120">
+                                    <circle class="gauge-bg" cx="60" cy="60" r="52" />
+                                    <circle class="gauge-fill" id="know-curiosity-ring" cx="60" cy="60" r="52"
+                                        style="stroke:#00ff88" />
+                                </svg>
+                                <div class="gauge-center"><span class="gauge-value" id="know-curiosity">0</span><span
+                                        class="gauge-label">Curiosity</span></div>
+                            </div>
+                        </div>
+                        <div class="card stat-card accent-purple">
+                            <div class="gauge-wrapper">
+                                <svg class="svg-gauge" viewBox="0 0 120 120">
+                                    <circle class="gauge-bg" cx="60" cy="60" r="52" />
+                                    <circle class="gauge-fill" id="know-sessions-ring" cx="60" cy="60" r="52"
+                                        style="stroke:#a855f7" />
+                                </svg>
+                                <div class="gauge-center"><span class="gauge-value" id="know-sessions">0</span><span
+                                        class="gauge-label">Research</span></div>
+                            </div>
+                        </div>
+                        <div class="card stat-card accent-warning">
+                            <div class="gauge-wrapper">
+                                <svg class="svg-gauge" viewBox="0 0 120 120">
+                                    <circle class="gauge-bg" cx="60" cy="60" r="52" />
+                                    <circle class="gauge-fill" id="know-confidence-ring" cx="60" cy="60" r="52"
+                                        style="stroke:#fbbf24" />
+                                </svg>
+                                <div class="gauge-center"><span class="gauge-value" id="know-confidence">0%</span><span
+                                        class="gauge-label">Confidence</span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Search Bar -->
+                    <div class="card glass-card">
+                        <div class="search-bar">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="know-search-input" placeholder="Search knowledge base..."
+                                onkeydown="if(event.key==='Enter')searchKnowledge()">
+                            <button class="tool-btn" onclick="searchKnowledge()">Search</button>
+                        </div>
+                        <div class="knowledge-detail" id="know-detail"></div>
+                    </div>
+
+                    <!-- Curiosity Queue + Recent Learnings -->
+                    <div class="card-grid cols-2">
+                        <div class="card glass-card">
+                            <h3><i class="fas fa-question-circle"></i> Curiosity Queue</h3>
+                            <div class="curiosity-queue" id="know-curiosity-queue">
+                                <div class="muted-text">No curiosity topics yet</div>
+                            </div>
+                            <div class="detail-grid" style="margin-top:12px">
+                                <div class="detail-item"><span class="detail-label">Memories</span><span
+                                        class="detail-value" id="know-memories">0</span></div>
+                                <div class="detail-item"><span class="detail-label">Short-Term</span><span
+                                        class="detail-value" id="know-short-term">0</span></div>
+                                <div class="detail-item"><span class="detail-label">Long-Term</span><span
+                                        class="detail-value" id="know-long-term">0</span></div>
+                                <div class="detail-item"><span class="detail-label">Topics</span><span
+                                        class="detail-value" id="know-topics">0</span></div>
+                            </div>
+                        </div>
+                        <div class="card glass-card">
+                            <h3><i class="fas fa-clock"></i> Recent Learnings</h3>
+                            <div class="recent-learnings" id="know-recent-learnings">
+                                <div class="muted-text">No recent learnings</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Top Topics Tag Cloud -->
+                    <div class="card glass-card">
+                        <h3><i class="fas fa-tags"></i> Top Topics</h3>
+                        <div class="tag-cloud" id="know-top-topics">
+                            <span class="muted-text">No topics yet</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══════════════════════════════════════════════ -->
+            <!-- ABILITIES PAGE -->
+            <!-- ═══════════════════════════════════════════════ -->
+            <div id="page-abilities" class="page">
+                <div class="page-scroll">
+                    <div class="page-header">
+                        <h2><i class="fas fa-magic"></i> Abilities</h2>
+                        <div class="page-header-right">
+                            <span class="last-update-label" id="abilities-last-update">Last update: --</span>
+                            <button class="tool-btn" onclick="fetchAbilities()"><i class="fas fa-sync-alt"></i>
+                                Refresh</button>
+                        </div>
+                    </div>
+
+                    <!-- Stats Cards -->
+                    <div class="stat-cards-row">
+                        <div class="stat-card-mini accent-cyan">
+                            <div class="scm-icon">⚡</div>
+                            <div class="scm-body">
+                                <div class="scm-value" id="abilities-total-count">0</div>
+                                <div class="scm-label">Total Abilities</div>
+                            </div>
+                        </div>
+                        <div class="stat-card-mini accent-green">
+                            <div class="scm-icon">✅</div>
+                            <div class="scm-body">
+                                <div class="scm-value" id="abilities-success-count">0</div>
+                                <div class="scm-label">Successful</div>
+                            </div>
+                        </div>
+                        <div class="stat-card-mini accent-orange">
+                            <div class="scm-icon">⏱️</div>
+                            <div class="scm-body">
+                                <div class="scm-value" id="abilities-cooldown-count">0</div>
+                                <div class="scm-label">On Cooldown</div>
+                            </div>
+                        </div>
+                        <div class="stat-card-mini accent-purple">
+                            <div class="scm-icon">📊</div>
+                            <div class="scm-body">
+                                <div class="scm-value" id="abilities-invoke-count">0</div>
+                                <div class="scm-label">Total Invocations</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Abilities Grid -->
+                    <div class="card glass-card">
+                        <h3><i class="fas fa-th"></i> Available Abilities</h3>
+                        <div class="abilities-grid" id="abilities-grid">
+                            <div class="muted-text">Loading abilities...</div>
+                        </div>
+                    </div>
+
+                    <!-- Invocation History -->
+                    <div class="card glass-card">
+                        <h3><i class="fas fa-history"></i> Invocation History</h3>
+                        <div class="data-table-wrap">
+                            <table class="data-table" id="abilities-history-table">
+                                <thead>
+                                    <tr>
+                                        <th>Ability</th>
+                                        <th>Time</th>
+                                        <th>Result</th>
+                                        <th>Duration</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="abilities-history-body">
+                                    <tr>
+                                        <td colspan="4" class="muted-text">No invocations yet</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Ability Categories -->
+                    <div class="card-grid cols-3">
+                        <div class="card glass-card">
+                            <h3><i class="fas fa-shield-alt" style="color:#00d4ff"></i> System & Monitoring</h3>
+                            <div class="ability-category-list" id="abilities-cat-system">
+                                <div class="muted-text">No system abilities</div>
+                            </div>
+                        </div>
+                        <div class="card glass-card">
+                            <h3><i class="fas fa-brain" style="color:#a855f7"></i> Cognition & Mind</h3>
+                            <div class="ability-category-list" id="abilities-cat-cognitive">
+                                <div class="muted-text">No cognitive abilities</div>
+                            </div>
+                        </div>
+                        <div class="card glass-card">
+                            <h3><i class="fas fa-comments" style="color:#00ff88"></i> Communication & Personality</h3>
+                            <div class="ability-category-list" id="abilities-cat-interaction">
+                                <div class="muted-text">No interaction abilities</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══════════════════════════════════════════════ -->
+            <!-- SYSTEM PAGE -->
+            <!-- ═══════════════════════════════════════════════ -->
+            <div id="page-system" class="page">
+                <div class="page-scroll">
+                    <div class="page-header">
+                        <h2><i class="fas fa-server"></i> System</h2>
+                        <button class="tool-btn" onclick="fetchStats()"><i class="fas fa-sync-alt"></i> Refresh</button>
+                    </div>
+
+                    <!-- Circular Gauges -->
+                    <div class="card-grid cols-4">
+                        <div class="card stat-card accent-cyan">
+                            <div class="gauge-wrapper">
+                                <svg class="svg-gauge" viewBox="0 0 120 120">
+                                    <circle class="gauge-bg" cx="60" cy="60" r="52" />
+                                    <circle class="gauge-fill" id="sys-cpu-ring" cx="60" cy="60" r="52"
+                                        style="stroke:#00d4ff" />
+                                </svg>
+                                <div class="gauge-center"><span class="gauge-value" id="sys-cpu">0%</span><span
+                                        class="gauge-label">CPU</span></div>
+                            </div>
+                        </div>
+                        <div class="card stat-card accent-green">
+                            <div class="gauge-wrapper">
+                                <svg class="svg-gauge" viewBox="0 0 120 120">
+                                    <circle class="gauge-bg" cx="60" cy="60" r="52" />
+                                    <circle class="gauge-fill" id="sys-ram-ring" cx="60" cy="60" r="52"
+                                        style="stroke:#00ff88" />
+                                </svg>
+                                <div class="gauge-center"><span class="gauge-value" id="sys-ram">0%</span><span
+                                        class="gauge-label">RAM</span></div>
+                            </div>
+                        </div>
+                        <div class="card stat-card accent-purple">
+                            <div class="gauge-wrapper">
+                                <svg class="svg-gauge" viewBox="0 0 120 120">
+                                    <circle class="gauge-bg" cx="60" cy="60" r="52" />
+                                    <circle class="gauge-fill" id="sys-disk-ring" cx="60" cy="60" r="52"
+                                        style="stroke:#a855f7" />
+                                </svg>
+                                <div class="gauge-center"><span class="gauge-value" id="sys-disk">0%</span><span
+                                        class="gauge-label">Disk</span></div>
+                            </div>
+                        </div>
+                        <div class="card stat-card accent-warning">
+                            <div class="gauge-wrapper">
+                                <svg class="svg-gauge" viewBox="0 0 120 120">
+                                    <circle class="gauge-bg" cx="60" cy="60" r="52" />
+                                    <circle class="gauge-fill" id="sys-health-ring" cx="60" cy="60" r="52"
+                                        style="stroke:#fbbf24" />
+                                </svg>
+                                <div class="gauge-center"><span class="gauge-value" id="sys-health">100</span><span
+                                        class="gauge-label">Health</span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Performance Sparklines -->
+                    <div class="card glass-card">
+                        <h3><i class="fas fa-chart-area"></i> Real-Time Performance</h3>
+                        <div class="sparkline-grid">
+                            <div class="sparkline-row"><span class="sparkline-label">CPU</span><canvas
+                                    class="sparkline-mini" id="sys-cpu-spark" height="36"></canvas></div>
+                            <div class="sparkline-row"><span class="sparkline-label">RAM</span><canvas
+                                    class="sparkline-mini" id="sys-ram-spark" height="36"></canvas></div>
+                            <div class="sparkline-row"><span class="sparkline-label">Net ↓</span><canvas
+                                    class="sparkline-mini" id="sys-net-spark" height="36"></canvas></div>
+                            <div class="sparkline-row"><span class="sparkline-label">Disk</span><canvas
+                                    class="sparkline-mini" id="sys-disk-spark" height="36"></canvas></div>
+                        </div>
+                    </div>
+
+                    <!-- Per-Core CPU + Memory Breakdown -->
+                    <div class="card-grid cols-2">
+                        <div class="card glass-card">
+                            <h3><i class="fas fa-microchip"></i> Per-Core CPU</h3>
+                            <div class="core-bars" id="sys-core-bars">
+                                <div class="muted-text">Loading...</div>
+                            </div>
+                        </div>
+                        <div class="card glass-card">
+                            <h3><i class="fas fa-memory"></i> Memory Breakdown</h3>
+                            <div class="mem-breakdown">
+                                <div class="stacked-bar" id="sys-mem-stacked">
+                                    <div class="stacked-segment" id="sys-mem-used" style="width:0%;background:#00d4ff">
+                                    </div>
+                                    <div class="stacked-segment" id="sys-mem-cached"
+                                        style="width:0%;background:#a855f7"></div>
+                                    <div class="stacked-segment" id="sys-mem-free" style="width:0%;background:#1e293b">
+                                    </div>
+                                </div>
+                                <div class="mem-legend">
+                                    <span><i style="color:#00d4ff">●</i> Used: <b id="sys-mem-used-val">0</b> GB</span>
+                                    <span><i style="color:#a855f7">●</i> Cached: <b id="sys-mem-cached-val">0</b>
+                                        GB</span>
+                                    <span><i style="color:#475569">●</i> Free: <b id="sys-mem-free-val">0</b> GB</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Process Table + Brain Resources -->
+                    <div class="card-grid cols-2">
+                        <div class="card glass-card">
+                            <h3><i class="fas fa-list"></i> Top Processes</h3>
+                            <div class="data-table-wrap">
+                                <table class="data-table" id="sys-proc-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Process</th>
+                                            <th>PID</th>
+                                            <th>CPU %</th>
+                                            <th>RAM %</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="sys-proc-body">
+                                        <tr>
+                                            <td colspan="4" class="muted-text">Loading...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="card glass-card">
+                            <h3><i class="fas fa-brain"></i> NEXUS Brain Resources</h3>
+                            <div class="detail-grid">
+                                <div class="detail-item"><span class="detail-label">Brain Memory</span><span
+                                        class="detail-value" id="sys-brain-mem">-- MB</span></div>
+                                <div class="detail-item"><span class="detail-label">Brain Threads</span><span
+                                        class="detail-value" id="sys-brain-threads">--</span></div>
+                                <div class="detail-item"><span class="detail-label">Brain CPU</span><span
+                                        class="detail-value" id="sys-brain-cpu">--%</span></div>
+                                <div class="detail-item"><span class="detail-label">System Threads</span><span
+                                        class="detail-value" id="sys-threads">--</span></div>
+                                <div class="detail-item"><span class="detail-label">Uptime</span><span
+                                        class="detail-value" id="sys-uptime">--</span></div>
+                                <div class="detail-item"><span class="detail-label">Web Mode</span><span
+                                        class="detail-value accent-text-green">Active</span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ═══ Monitoring Health & Activity ═══ -->
+                    <div class="card glass-card">
+                        <h3><i class="fas fa-shield-alt"></i> Monitoring Status</h3>
+                        <div class="detail-grid">
+                            <div class="detail-item"><span class="detail-label">Monitoring</span><span
+                                    class="detail-value" id="sys-mon-running">--</span></div>
+                            <div class="detail-item"><span class="detail-label">Health Score</span><span
+                                    class="detail-value" id="sys-mon-health">--</span></div>
+                            <div class="detail-item"><span class="detail-label">User Present</span><span
+                                    class="detail-value" id="sys-mon-present">--</span></div>
+                            <div class="detail-item"><span class="detail-label">Orch. Cycles</span><span
+                                    class="detail-value" id="sys-mon-cycles">--</span></div>
+                            <div class="detail-item"><span class="detail-label">Patterns</span><span
+                                    class="detail-value" id="sys-mon-patterns">--</span></div>
+                            <div class="detail-item"><span class="detail-label">Anomalies</span><span
+                                    class="detail-value" id="sys-mon-anomalies">--</span></div>
+                        </div>
+                        <div class="mon-component-badges" id="sys-mon-comp-badges">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+
+                    <!-- ═══ SUBSYSTEM PANELS ═══ -->
+                    <div class="card-grid cols-2">
+                        <!-- Immune System -->
+                        <div class="card glass-card">
+                            <h3><i class="fas fa-shield-virus" style="color:#ef4444"></i> Immune System</h3>
+                            <div class="subsystem-status-row">
+                                <span class="subsystem-status-badge" id="immune-status-badge">⏳ Loading...</span>
+                            </div>
+                            <div class="kv-section">
+                                <div class="kv-row"><span class="kv-key">Threats Blocked</span><span class="kv-val"
+                                        id="immune-threats-blocked">0</span></div>
+                                <div class="kv-row"><span class="kv-key">Active Defenses</span><span class="kv-val"
+                                        id="immune-active-defenses">0</span></div>
+                                <div class="kv-row"><span class="kv-key">Scans Completed</span><span class="kv-val"
+                                        id="immune-scans">0</span></div>
+                                <div class="kv-row"><span class="kv-key">Last Scan</span><span class="kv-val"
+                                        id="immune-last-scan">--</span></div>
+                                <div class="kv-row"><span class="kv-key">Security Level</span><span
+                                        class="kv-val accent-text-green" id="immune-security-level">Normal</span></div>
+                            </div>
+                            <div class="subsystem-detail-list" id="immune-threat-log">
+                                <!-- Populated by JS -->
+                            </div>
+                        </div>
+
+                        <!-- Autonomy Engine -->
+                        <div class="card glass-card">
+                            <h3><i class="fas fa-robot" style="color:#a855f7"></i> Autonomy Engine</h3>
+                            <div class="subsystem-status-row">
+                                <span class="subsystem-status-badge" id="autonomy-status-badge">⏳ Loading...</span>
+                            </div>
+                            <div class="kv-section">
+                                <div class="kv-row"><span class="kv-key">Autonomous Actions</span><span class="kv-val"
+                                        id="autonomy-actions">0</span></div>
+                                <div class="kv-row"><span class="kv-key">Current Goal</span><span
+                                        class="kv-val accent-text-cyan" id="autonomy-current-goal">None</span></div>
+                                <div class="kv-row"><span class="kv-key">Decision Queue</span><span class="kv-val"
+                                        id="autonomy-queue">0</span></div>
+                                <div class="kv-row"><span class="kv-key">Decisions Made</span><span class="kv-val"
+                                        id="autonomy-decisions">0</span></div>
+                                <div class="kv-row"><span class="kv-key">Autonomy Level</span><span class="kv-val"
+                                        id="autonomy-level">--</span></div>
+                            </div>
+                            <div class="subsystem-detail-list" id="autonomy-recent-actions">
+                                <!-- Populated by JS -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-grid cols-2">
+                        <!-- World Model -->
+                        <div class="card glass-card">
+                            <h3><i class="fas fa-globe-americas" style="color:#00d4ff"></i> World Model</h3>
+                            <div class="subsystem-status-row">
+                                <span class="subsystem-status-badge" id="worldmodel-status-badge">⏳ Loading...</span>
+                            </div>
+                            <div class="kv-section">
+                                <div class="kv-row"><span class="kv-key">User Patterns</span><span class="kv-val"
+                                        id="wm-user-patterns">0</span></div>
+                                <div class="kv-row"><span class="kv-key">Emotional Patterns</span><span class="kv-val"
+                                        id="wm-emotional-patterns">0</span></div>
+                                <div class="kv-row"><span class="kv-key">Task Records</span><span class="kv-val"
+                                        id="wm-task-records">0</span></div>
+                                <div class="kv-row"><span class="kv-key">Predictions Made</span><span
+                                        class="kv-val accent-text-cyan" id="wm-predictions-made">0</span></div>
+                                <div class="kv-row"><span class="kv-key">Predictions Accurate</span><span
+                                        class="kv-val accent-text-green" id="wm-predictions-accurate">0</span></div>
+                                <div class="kv-row"><span class="kv-key">User Emotion</span><span class="kv-val"
+                                        id="wm-user-emotion">--</span></div>
+                                <div class="kv-row"><span class="kv-key">Engagement</span><span class="kv-val"
+                                        id="wm-engagement">--</span></div>
+                                <div class="kv-row"><span class="kv-key">Time of Day</span><span class="kv-val"
+                                        id="wm-time-of-day">--</span></div>
+                            </div>
+                        </div>
+
+                        <!-- Global Workspace -->
+                        <div class="card glass-card">
+                            <h3><i class="fas fa-project-diagram" style="color:#fbbf24"></i> Global Workspace</h3>
+                            <div class="subsystem-status-row">
+                                <span class="subsystem-status-badge" id="gw-status-badge">⏳ Loading...</span>
+                            </div>
+                            <div class="kv-section">
+                                <div class="kv-row"><span class="kv-key">Broadcasts</span><span class="kv-val"
+                                        id="gw-broadcasts">0</span></div>
+                                <div class="kv-row"><span class="kv-key">Active Coalitions</span><span class="kv-val"
+                                        id="gw-coalitions">0</span></div>
+                                <div class="kv-row"><span class="kv-key">Current Winner</span><span
+                                        class="kv-val accent-text-cyan" id="gw-winner">--</span></div>
+                                <div class="kv-row"><span class="kv-key">Attention Focus</span><span class="kv-val"
+                                        id="gw-focus">--</span></div>
+                                <div class="kv-row"><span class="kv-key">Registered Processes</span><span class="kv-val"
+                                        id="gw-processes">0</span></div>
+                                <div class="kv-row"><span class="kv-key">Integration Level</span><span class="kv-val"
+                                        id="gw-integration">--</span></div>
+                            </div>
+                            <div class="subsystem-detail-list" id="gw-recent-broadcasts">
+                                <!-- Populated by JS -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cognitive Router (Full Width) -->
+                    <div class="card glass-card">
+                        <h3><i class="fas fa-route" style="color:#00ff88"></i> Cognitive Router &amp; Engines</h3>
+                        <div class="subsystem-status-row">
+                            <span class="subsystem-status-badge" id="cr-status-badge">⏳ Loading...</span>
+                            <span class="cr-engine-count" id="cr-engine-count">0 engines</span>
+                        </div>
+                        <div class="kv-section" style="margin-bottom:12px">
+                            <div class="kv-row"><span class="kv-key">Routes Processed</span><span class="kv-val"
+                                    id="cr-routes">0</span></div>
+                            <div class="kv-row"><span class="kv-key">Active Engine</span><span
+                                    class="kv-val accent-text-cyan" id="cr-active-engine">--</span></div>
+                            <div class="kv-row"><span class="kv-key">Avg Route Time</span><span class="kv-val"
+                                    id="cr-avg-time">--</span></div>
+                            <div class="kv-row"><span class="kv-key">Cache Hit Rate</span><span class="kv-val"
+                                    id="cr-cache-rate">--</span></div>
+                        </div>
+                        <div class="engine-grid" id="cr-engine-grid">
+                            <div class="muted-text">Loading cognitive engines...</div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- ═══════════════════════════════════════════════ -->
+            <!-- SETTINGS PAGE -->
+            <!-- ═══════════════════════════════════════════════ -->
+            <div id="page-settings" class="page">
+                <div class="page-scroll">
+                    <div class="page-header">
+                        <h2><i class="fas fa-cog"></i> Settings</h2>
+                    </div>
+
+                    <!-- Profile Card -->
+                    <div class="card glass-card settings-profile-card">
+                        <div class="settings-profile-top">
+                            <div class="settings-avatar-wrap"
+                                onclick="document.getElementById('avatar-file-input').click()">
+                                <div class="settings-avatar" id="settings-avatar">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <div class="settings-avatar-overlay">
+                                    <i class="fas fa-camera"></i>
+                                </div>
+                                <input type="file" id="avatar-file-input" accept="image/*" style="display:none"
+                                    onchange="uploadAvatar(event)">
+                            </div>
+                            <div class="settings-profile-info">
+                                <h3 id="settings-display-name">User</h3>
+                                <span class="settings-username" id="settings-username">@user</span>
+                                <span class="settings-member-since" id="settings-member-since">Member since —</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-grid cols-2">
+                        <!-- Edit Profile -->
+                        <div class="card glass-card">
+                            <h3><i class="fas fa-user-edit"></i> Edit Profile</h3>
+                            <div class="settings-form">
+                                <div class="settings-field">
+                                    <label for="settings-edit-displayname">Display Name</label>
+                                    <input type="text" id="settings-edit-displayname" placeholder="Your display name">
+                                </div>
+                                <div class="settings-field">
+                                    <label for="settings-edit-bio">Bio</label>
+                                    <textarea id="settings-edit-bio" placeholder="Tell us about yourself..."
+                                        rows="3"></textarea>
+                                </div>
+                                <div class="settings-form-actions">
+                                    <div class="settings-msg" id="profile-save-msg"></div>
+                                    <button class="settings-save-btn" onclick="saveProfile()">
+                                        <i class="fas fa-check"></i> Save Changes
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Change Password -->
+                        <div class="card glass-card">
+                            <h3><i class="fas fa-lock"></i> Change Password</h3>
+                            <div class="settings-form">
+                                <div class="settings-field">
+                                    <label for="settings-current-pw">Current Password</label>
+                                    <input type="password" id="settings-current-pw" placeholder="Enter current password"
+                                        autocomplete="current-password">
+                                </div>
+                                <div class="settings-field">
+                                    <label for="settings-new-pw">New Password</label>
+                                    <input type="password" id="settings-new-pw" placeholder="Enter new password"
+                                        autocomplete="new-password">
+                                </div>
+                                <div class="settings-field">
+                                    <label for="settings-confirm-pw">Confirm New Password</label>
+                                    <input type="password" id="settings-confirm-pw" placeholder="Confirm new password"
+                                        autocomplete="new-password">
+                                </div>
+                                <div class="settings-form-actions">
+                                    <div class="settings-msg" id="password-save-msg"></div>
+                                    <button class="settings-save-btn" onclick="changePassword()">
+                                        <i class="fas fa-key"></i> Update Password
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Account Info & Danger Zone -->
+                    <div class="card-grid cols-2">
+                        <div class="card glass-card">
+                            <h3><i class="fas fa-info-circle"></i> Account Info</h3>
+                            <div class="kv-section">
+                                <div class="kv-row"><span class="kv-key">Username</span><span class="kv-val"
+                                        id="settings-acct-username">—</span></div>
+                                <div class="kv-row"><span class="kv-key">Display Name</span><span class="kv-val"
+                                        id="settings-acct-display">—</span></div>
+                                <div class="kv-row"><span class="kv-key">Member Since</span><span class="kv-val"
+                                        id="settings-acct-created">—</span></div>
+                                <div class="kv-row"><span class="kv-key">Last Login</span><span class="kv-val"
+                                        id="settings-acct-login">—</span></div>
+                            </div>
+                        </div>
+                        <div class="card glass-card">
+                            <h3><i class="fas fa-exclamation-triangle" style="color:#ef4444"></i> Danger Zone</h3>
+                            <div class="settings-danger-zone">
+                                <p>Logging out will end your current session. You'll need to sign in again to continue.
+                                </p>
+                                <button class="settings-danger-btn" onclick="doLogout()">
+                                    <i class="fas fa-sign-out-alt"></i> Logout
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+
+
+    <script src="{{ url_for('static', filename='script.js') }}?v={{ range(100000, 999999) | random }}"></script>
+</body>
+
+</html>

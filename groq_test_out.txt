@@ -1,0 +1,13 @@
+Starting test...
+
+--- Testing model: llama-3.2-11b-vision-preview ---
+Error (400): {"error":{"message":"The model `llama-3.2-11b-vision-preview` has been decommissioned and is no longer supported. Please refer to https://console.groq.com/docs/deprecations for a recommendation on which model to use instead.","type":"invalid_request_error","code":"model_decommissioned"}}
+
+
+--- Testing model: llama-3.2-90b-vision-preview ---
+Error (400): {"error":{"message":"The model `llama-3.2-90b-vision-preview` has been decommissioned and is no longer supported. Please refer to https://console.groq.com/docs/deprecations for a recommendation on which model to use instead.","type":"invalid_request_error","code":"model_decommissioned"}}
+
+
+--- Testing model: meta-llama/llama-4-scout-17b-16e-instruct ---
+Error (400): {"error":{"message":"Image must have at least 2 pixels in each dimension","type":"invalid_request_error"}}
+

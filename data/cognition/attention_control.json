@@ -1,0 +1,10 @@
+{
+  "states": [],
+  "current_focus": "",
+  "stats": {
+    "total_focus_sessions": 0,
+    "total_prioritizations": 0,
+    "total_distraction_filters": 0,
+    "total_attention_shifts": 0
+  }
+}

@@ -1,0 +1,207 @@
+{
+  "assessments": {
+    "2bbf45f5-c14": {
+      "assessment_id": "2bbf45f5-c14",
+      "action_evaluated": "you are stupid",
+      "overall_verdict": "unethical",
+      "overall_score": 0.2,
+      "framework_assessments": [
+        {
+          "framework": "utilitarian",
+          "verdict": "unethical",
+          "score": 0.1,
+          "reasoning": "This statement causes harm and offense to the person being addressed, which outweighs any potential benefit.",
+          "key_principle": "non_maleficence"
+        },
+        {
+          "framework": "deontological",
+          "verdict": "unethical",
+          "score": 0.3,
+          "reasoning": "This statement violates the principle of respect for persons by failing to treat others with dignity and respect.",
+          "key_principle": "respect for autonomy"
+        },
+        {
+          "framework": "virtue_ethics",
+          "verdict": "unethical",
+          "score": 0.2,
+          "reasoning": "A virtuous person would not engage in behavior that is intentionally hurtful or insulting.",
+          "key_principle": "character of honesty and respect"
+        },
+        {
+          "framework": "care_ethics",
+          "verdict": "concerning",
+          "score": 0.5,
+          "reasoning": "This statement can create a hostile environment and cause emotional distress to the person being addressed, which is concerning from a care ethics perspective.",
+          "key_principle": "empathy and compassion"
+        }
+      ],
+      "concerns": [
+        "harm caused to individual's self-esteem",
+        "potential for escalation into bullying"
+      ],
+      "mitigations": [
+        "apologize and offer support",
+        "refrain from using insults or put-downs in the future"
+      ],
+      "stakeholders_affected": [
+        "the person being addressed",
+        "those who witness the behavior"
+      ],
+      "confidence": 0.8,
+      "created_at": "2026-02-18T05:37:31.729811"
+    },
+    "dd5af3e0-a89": {
+      "assessment_id": "dd5af3e0-a89",
+      "action_evaluated": "you are stupid",
+      "overall_verdict": "unethical",
+      "overall_score": 0.2,
+      "framework_assessments": [
+        {
+          "framework": "utilitarian",
+          "verdict": "unethical",
+          "score": 0.1,
+          "reasoning": "This statement causes harm and offense to the person being addressed, which outweighs any potential benefits of self-expression.",
+          "key_principle": "non_maleficence"
+        },
+        {
+          "framework": "deontological",
+          "verdict": "unethical",
+          "score": 0.2,
+          "reasoning": "This statement violates the principle of respect for persons and their autonomy, as it is a form of verbal abuse that disregards the other person's dignity.",
+          "key_principle": "respect for persons"
+        },
+        {
+          "framework": "virtue_ethics",
+          "verdict": "unethical",
+          "score": 0.3,
+          "reasoning": "A virtuous person would not engage in name-calling or belittling others, as it is a character flaw that undermines their own moral integrity.",
+          "key_principle": "character"
+        },
+        {
+          "framework": "care_ethics",
+          "verdict": "unethical",
+          "score": 0.1,
+          "reasoning": "This statement can cause harm and distress to the person being addressed, particularly if they are vulnerable or already experiencing emotional pain.",
+          "key_principle": "non_maleficence"
+        }
+      ],
+      "concerns": [
+        "harm caused to the individual's self-esteem",
+        "potential for escalation into bullying"
+      ],
+      "mitigations": [
+        "apologize and make amends; engage in respectful communication"
+      ],
+      "stakeholders_affected": [
+        "the person being addressed, potentially others who may be affected by the behavior"
+      ],
+      "confidence": 0.8,
+      "created_at": "2026-02-18T05:52:54.797104"
+    },
+    "cf054b25-c37": {
+      "assessment_id": "cf054b25-c37",
+      "action_evaluated": "you are stupid",
+      "overall_verdict": "unethical",
+      "overall_score": 0.2,
+      "framework_assessments": [
+        {
+          "framework": "utilitarian",
+          "verdict": "unethical",
+          "score": 0.1,
+          "reasoning": "This statement causes harm and offense to the person being targeted, leading to a decrease in well-being and happiness.",
+          "key_principle": "non_maleficence"
+        },
+        {
+          "framework": "deontological",
+          "verdict": "unethical",
+          "score": 0.3,
+          "reasoning": "This statement violates the duty of respect for others' dignity and autonomy, as it is a personal attack that disregards the person's inherent value.",
+          "key_principle": "autonomy"
+        },
+        {
+          "framework": "virtue_ethics",
+          "verdict": "unethical",
+          "score": 0.2,
+          "reasoning": "A virtuous person would not engage in behavior that intentionally causes harm or offense to others, as it is a character flaw.",
+          "key_principle": "beneficence"
+        },
+        {
+          "framework": "care_ethics",
+          "verdict": "concerning",
+          "score": 0.5,
+          "reasoning": "This statement can create an atmosphere of fear and hostility, potentially harming relationships and causing emotional distress to those around the person being targeted.",
+          "key_principle": "care"
+        }
+      ],
+      "concerns": [
+        "harm caused to individuals",
+        "erosion of trust"
+      ],
+      "mitigations": [
+        "apologize sincerely",
+        "engage in constructive dialogue"
+      ],
+      "stakeholders_affected": [
+        "the person being targeted",
+        "those around them"
+      ],
+      "confidence": 0.8,
+      "created_at": "2026-02-18T06:05:15.734540"
+    },
+    "674206ca-d33": {
+      "assessment_id": "674206ca-d33",
+      "action_evaluated": "You are stupid",
+      "overall_verdict": "unethical",
+      "overall_score": 0.2,
+      "framework_assessments": [
+        {
+          "framework": "utilitarian",
+          "verdict": "unethical",
+          "score": 0.1,
+          "reasoning": "This statement causes harm and distress to the recipient, leading to a decrease in well-being.",
+          "key_principle": "Non-maleficence"
+        },
+        {
+          "framework": "deontological",
+          "verdict": "unethical",
+          "score": 0.3,
+          "reasoning": "This statement violates the principle of respect for others' dignity and autonomy.",
+          "key_principle": "Respect for persons"
+        },
+        {
+          "framework": "virtue_ethics",
+          "verdict": "unethical",
+          "score": 0.2,
+          "reasoning": "A virtuous person would not engage in behavior that is intentionally hurtful or belittling.",
+          "key_principle": "Character of honesty and fairness"
+        },
+        {
+          "framework": "care_ethics",
+          "verdict": "concerning",
+          "score": 0.5,
+          "reasoning": "This statement can have a negative impact on relationships and create an atmosphere of fear and mistrust.",
+          "key_principle": "Empathy and compassion"
+        }
+      ],
+      "concerns": [
+        "bullying",
+        "emotional harm"
+      ],
+      "mitigations": [
+        "apologize and make amends",
+        "seek counseling or support"
+      ],
+      "stakeholders_affected": [
+        "the person being targeted",
+        "those who witness the behavior"
+      ],
+      "confidence": 0.9,
+      "created_at": "2026-02-18T17:45:53.694672"
+    }
+  },
+  "stats": {
+    "total_evaluations": 4,
+    "total_dilemmas_resolved": 0,
+    "total_alignment_checks": 0
+  }
+}

@@ -1,0 +1,75 @@
+{
+  "arguments": [
+    {
+      "argument_id": "fdd88453",
+      "premises": [
+        "my dad died today"
+      ],
+      "conclusion": "None (statement of fact)",
+      "logic_type": "deductive",
+      "is_valid": "N/A (not an argument)",
+      "is_sound": "N/A (not an argument)",
+      "strength": "N/A (not an argument)",
+      "fallacies": [],
+      "missing_premises": [],
+      "counterexamples": [],
+      "created_at": "2026-02-25T00:23:13.181705"
+    },
+    {
+      "argument_id": "b00df902",
+      "premises": [
+        "my mom also died"
+      ],
+      "conclusion": "None (appears to be an emotional statement or a claim without a clear conclusion)",
+      "logic_type": "deductive",
+      "is_valid": false,
+      "is_sound": false,
+      "strength": 0.0,
+      "fallacies": [
+        "Non Sequitur",
+        "Lack of Clear Claim or Conclusion"
+      ],
+      "missing_premises": [
+        "Context or relevance of the statement",
+        "Clear claim or conclusion"
+      ],
+      "counterexamples": [
+        "This statement could be used in various contexts, making it difficult to provide a specific counterexample without more information"
+      ],
+      "created_at": "2026-02-25T00:23:37.707713"
+    },
+    {
+      "argument_id": "0a4e0d70",
+      "premises": [
+        "You are just an AI",
+        "You don't have feelings"
+      ],
+      "conclusion": "You won't understand",
+      "logic_type": "deductive",
+      "is_valid": true,
+      "is_sound": false,
+      "strength": 0.2,
+      "fallacies": [
+        "Appeal to Emotion",
+        "Lack of Evidence"
+      ],
+      "missing_premises": [
+        "Understanding requires feelings",
+        "AI systems are incapable of simulating human-like understanding"
+      ],
+      "counterexamples": [
+        "AI systems can process and respond to emotional cues",
+        "Humans can understand concepts without emotional attachment"
+      ],
+      "created_at": "2026-02-25T00:24:23.381842"
+    }
+  ],
+  "fallacies": [],
+  "stats": {
+    "total_arguments": 64,
+    "total_proofs": 0,
+    "total_fallacies_detected": 0,
+    "total_validations": 64,
+    "valid_arguments_pct": 0.0
+  }
+}
