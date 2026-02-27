@@ -3,9 +3,9 @@ ollama>=0.1.0
 langchain>=0.1.0
 langchain-community>=0.0.10
 
-# UI
-customtkinter>=5.2.0
-tkinter-tooltip>=2.1.0
+# UI (GUI packages commented out for headless server deployment)
+# customtkinter>=5.2.0    # Requires display
+# tkinter-tooltip>=2.1.0  # Requires display
 Pillow>=10.0.0
 matplotlib>=3.8.0
 plotly>=5.18.0
@@ -13,18 +13,19 @@ plotly>=5.18.0
 # System Control
 psutil>=5.9.0
 pyautogui>=0.9.54
-pygetwindow>=0.0.9
-keyboard>=0.13.5
-mouse>=0.7.1
-pynput>=1.7.6
-pywin32>=306
-wmi>=1.5.1
+# Note: The following Windows-specific packages are commented out for Linux deployment
+# pygetwindow>=0.0.9  # Windows only
+# keyboard>=0.13.5    # Windows/Linux hybrid, requires root on Linux
+# mouse>=0.7.1        # Windows/Linux hybrid, requires root on Linux
+# pynput>=1.7.6       # Windows/Linux hybrid, requires root on Linux
+# pywin32>=306        # Windows only
+# wmi>=1.5.1          # Windows only
 screeninfo>=0.8.1
 
 # Web/Internet
 requests>=2.31.0
 beautifulsoup4>=4.12.0
-selenium>=4.15.0
+# selenium>=4.15.0  # Requires browser installed - commented for server
 aiohttp>=3.9.0
 feedparser>=6.0.10
 duckduckgo-search>=4.1.0
@@ -40,10 +41,10 @@ chromadb>=0.4.0
 pickle5>=0.0.11
 sentence-transformers>=2.2.0
 
-# Audio
-pyttsx3>=2.90
-SpeechRecognition>=3.10.0
-pyaudio>=0.2.13
+# Audio (commented out for headless server deployment)
+# pyttsx3>=2.90           # Requires audio system
+# SpeechRecognition>=3.10.0  # Requires audio system
+# pyaudio>=0.2.13         # Requires audio system and portaudio
 
 # Async & Threading
 aiofiles>=23.2.0
@@ -65,10 +66,8 @@ numpy>=1.26.0
 pandas>=2.1.0
 
 # ── Phase 9: Internet Learning ──
-requests>=2.31.0
-beautifulsoup4>=4.12.0
 lxml>=4.9.0
-PySide6==6.7.2
+# PySide6==6.7.2  # Qt GUI framework - requires display, commented for server
 
 # ── Phase 10: Hybrid Reasoning ──
 networkx>=3.2.1
