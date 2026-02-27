@@ -17,7 +17,7 @@ pygetwindow>=0.0.9
 keyboard>=0.13.5
 mouse>=0.7.1
 pynput>=1.7.6
-pywin32>=306; sys_platform == "win32"
+pywin32>=306
 wmi>=1.5.1
 screeninfo>=0.8.1
 
@@ -36,7 +36,6 @@ textblob>=0.17.1
 spacy>=3.7.0
 
 # Database & Storage
-pysqlite3-binary>=0.4
 chromadb>=0.4.0
 pickle5>=0.0.11
 sentence-transformers>=2.2.0
@@ -47,12 +46,10 @@ SpeechRecognition>=3.10.0
 pyaudio>=0.2.13
 
 # Async & Threading
-asyncio
 aiofiles>=23.2.0
 schedule>=1.2.0
 
 # Code Analysis
-ast
 autopep8>=2.0.4
 black>=23.12.0
 pylint>=3.0.0
